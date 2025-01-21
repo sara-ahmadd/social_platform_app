@@ -9,7 +9,7 @@ const port = process.env.PORT;
 await DBConnection();
 
 app.use(express.json());
-
+app.get("/", (req, res, next) => res.json({ message: "success" }));
 app.use("/auth", authController);
 
 app.all("*", (req, res, next) => {
