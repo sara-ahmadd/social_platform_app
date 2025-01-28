@@ -1,7 +1,7 @@
 import joi from "joi";
 import { genders } from "../../models/user.model.js";
 
-const userFields = {
+export const userFields = {
   userName: joi.string().min(3).max(30).messages({
     "string.base": "Username should be a type of text.",
     "string.empty": "Username cannot be empty.",

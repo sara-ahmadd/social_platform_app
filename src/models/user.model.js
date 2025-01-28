@@ -32,6 +32,10 @@ const UserSchema = new Schema(
       type: Date,
       required: true,
     },
+    picture: {
+      type: String,
+      default: "assets\\profile-pic.jpg",
+    },
     gender: {
       type: String,
       enum: [genders.male, genders.female],
@@ -53,6 +57,10 @@ const UserSchema = new Schema(
       type: String,
       enum: [...Object.values(providers)],
       default: providers.credentials,
+    },
+    tempEmail: {
+      type: String,
+      default: null,
     },
   },
   { timestamps: true }

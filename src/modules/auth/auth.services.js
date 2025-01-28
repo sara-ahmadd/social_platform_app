@@ -20,7 +20,7 @@ const otpErrors = {
  * - handle sending otp to the email to be verified
  * @param {String} email
  */
-const sendOtp = async (email, subject) => {
+export const sendOtp = async (email, subject) => {
   //generate redis instance
   //generate otp
   const otp = otpGenerator.generate(6, {

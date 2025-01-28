@@ -6,3 +6,8 @@ export const generateToken = (payload, expirationTime) => {
   });
   return token;
 };
+export const verifyToken = (token) => {
+  //verify access token
+  const payload = jwt.verify(token, process.env.JWT_SECRET_KEY);
+  return payload;
+};
