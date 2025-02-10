@@ -4,6 +4,8 @@ import authController from "./src/modules/auth/auth.controller.js";
 import userController from "./src/modules/user/user.controller.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import postController from "./src/modules/post/post.controller.js";
+
 const app = express();
 
 const port = process.env.PORT;
@@ -14,10 +16,12 @@ export const __dirname = path.dirname(__filename);
 
 app.use(express.json());
 
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static("uploads"));
+app.use("/assets", express.static("assets"));
 
 app.use("/auth", authController);
 app.use("/user", userController);
+app.use("/post", postController);
 
 // app.get("/", (req, res, next) => res.json({ message: "success" }));
 app.all("*", (req, res, next) => {

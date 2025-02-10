@@ -1,4 +1,4 @@
-import { model, Schema } from "mongoose";
+import { model, Schema, Types } from "mongoose";
 
 export const genders = {
   male: "male",
@@ -8,6 +8,8 @@ export const providers = {
   credentials: "credentials",
   google: "google",
 };
+
+export const defaultPicture = `${process.env.BASE_URL}/assets\\profile-pic.png`;
 
 const UserSchema = new Schema(
   {
@@ -34,7 +36,7 @@ const UserSchema = new Schema(
     },
     picture: {
       type: String,
-      default: "assets\\profile-pic.jpg",
+      default: defaultPicture,
     },
     gender: {
       type: String,
@@ -62,6 +64,30 @@ const UserSchema = new Schema(
       type: String,
       default: null,
     },
+    views: [
+      {
+        type: Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    blocked_users: [
+      {
+        type: Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    friends: [
+      {
+        type: Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    friend_requests: [
+      {
+        type: Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   { timestamps: true }
 );

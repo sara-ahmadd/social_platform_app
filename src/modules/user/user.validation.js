@@ -6,11 +6,20 @@ export const roles = {
   admin: "admin",
 };
 
-const fileObject = {
-  fieldname: joi.string(),
-  originalname: joi.string(),
-  encoding: joi.string(),
-  mimetype: joi.string(),
+export const friendRequestState = {
+  accept: "accept",
+  reject: "reject",
+};
+
+export const fileObject = {
+  fieldname: joi.string().required(),
+  filename: joi.string().required(),
+  path: joi.string().required(),
+  size: joi.number().required(),
+  destination: joi.string().required(),
+  originalname: joi.string().required(),
+  encoding: joi.string().required(),
+  mimetype: joi.string().required(),
 };
 
 export const addPictureSchema = joi
@@ -54,5 +63,34 @@ export const verifyUpdateEmailSchema = joi
   .object({
     otp: joi.string().length(6).required(),
     email: userFields.email.required(),
+  })
+  .required();
+
+export const blockUserValidation = joi
+  .object({
+    userId: joi.string().required(),
+  })
+  .required();
+
+export const sendFriendRequestSchema = joi
+  .object({
+    email: userFields.email.required(),
+  })
+  .required();
+
+export const cancelFriendRequestSchema = joi
+  .object({
+    email: userFields.email.required(),
+  })
+  .required();
+
+export const acceptOrRejectFriendRequestSchema = joi
+  .object({
+    email: userFields.email.required(),
+    token: joi.string().required(),
+    state: joi
+      .string()
+      .valid(...Object.values(friendRequestState))
+      .required(),
   })
   .required();

@@ -21,7 +21,6 @@ const otpErrors = {
  * @param {String} email
  */
 export const sendOtp = async (email, subject) => {
-  //generate redis instance
   //generate otp
   const otp = otpGenerator.generate(6, {
     digits: true,
