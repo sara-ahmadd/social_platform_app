@@ -5,8 +5,8 @@ import {
   archivePostService,
   createPostService,
   deletePostService,
-  getALLPosts,
   getALLPostsOfSpecificUser,
+  getALLPostsService,
   getPostByIdService,
   likeUnlikePostService,
   undoPostService,
@@ -44,7 +44,7 @@ router.get(
   "/all",
   asyncHandler(isAuthenticated),
   validate(getAllPostsValidation),
-  asyncHandler(getALLPosts)
+  asyncHandler(getALLPostsService)
 );
 //get all posts of a specific user by his id
 router.get(

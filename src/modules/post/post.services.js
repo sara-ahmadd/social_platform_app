@@ -16,17 +16,47 @@ export async function getAllPosts(userId, active) {
   if (active == undefined) {
     posts = await PostModel.find({
       user: userId,
-    }).populate({ path: "user", select: "userName email picture.secure_url" });
+    }).populate([
+      { path: "user", select: "userName email picture" },
+      {
+        path: "comments",
+        match: { mainComment: { $exists: false } },
+        select: "text image user",
+        populate: [
+          {
+            path: "replies",
+            select: "text image user",
+            populate: [{ path: "user", select: "userName email picture" }],
+          },
+          { path: "user", select: "userName email picture" },
+        ],
+      },
+    ]);
   } else {
     posts = await PostModel.find({
       isDeleted: !active,
       user: userId,
-    }).populate({ path: "user", select: "userName email picture.secure_url" });
+    }).populate([
+      { path: "user", select: "userName email picture" },
+      {
+        path: "comments",
+        select: "text image user",
+        match: { mainComment: { $exists: false } },
+        populate: [
+          {
+            path: "replies",
+            select: "text image user",
+            popoulate: { path: "user", select: "userName email picture" },
+          },
+          { path: "user", select: "userName email picture" },
+        ],
+      },
+    ]);
   }
   return posts;
 }
 
-export const getALLPosts = async (req, res, next) => {
+export const getALLPostsService = async (req, res, next) => {
   const { user } = req;
   const { active } = req.query;
   const posts = await getAllPosts(
@@ -45,7 +75,7 @@ export const getALLPosts = async (req, res, next) => {
     - Else return all posts
  * @param {Request} req
  * @param {Response} res
- * @param {NextMiddleware} next
+ * @param {NextExpressMiddleware} next
  * @returns
  */
 export const getALLPostsOfSpecificUser = async (req, res, next) => {
@@ -64,7 +94,22 @@ export const getALLPostsOfSpecificUser = async (req, res, next) => {
         visibility: visibilityOptions.friends,
         isDeleted: false,
         isArchived: false,
-      });
+      }).populate([
+        { path: "user", select: "userName email picture.secure_url" },
+        {
+          path: "comments",
+          select: "text image",
+          match: { mainComment: { $exists: false } },
+          populate: [
+            {
+              path: "replies",
+              select: "text image user",
+              popoulate: { path: "user", select: "userName email picture" },
+            },
+            { path: "user", select: "userName email picture" },
+          ],
+        },
+      ]);
       return res.status(200).json({ status: "Success", posts });
     }
   }
@@ -76,8 +121,22 @@ export const getALLPostsOfSpecificUser = async (req, res, next) => {
       isDeleted: false,
       isArchived: false,
       exceptions: { $nin: [currentUser._id.toString()] },
-    });
-
+    }).populate([
+      { path: "user", select: "userName email picture.secure_url" },
+      {
+        path: "comments",
+        select: "text image user",
+        match: { mainComment: { $exists: false } },
+        populate: [
+          {
+            path: "replies",
+            select: "text image user",
+            popoulate: { path: "user", select: "userName email picture" },
+          },
+          { path: "user", select: "userName email picture" },
+        ],
+      },
+    ]);
     return res.status(200).json({
       status: "success",
       posts,

@@ -42,7 +42,13 @@ const postSchema = new Schema(
     },
     exceptions: [{ type: Types.ObjectId, ref: "User" }],
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+postSchema.virtual("comments", {
+  foreignField: "post",
+  localField: "_id",
+  ref: "comment",
+});
 
 export const PostModel = model("post", postSchema);
