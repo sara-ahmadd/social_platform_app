@@ -4,6 +4,7 @@ import { eventEmitter } from "../../../utils/email/sendEmail.js";
 import { decrypt, encryptText } from "../../../utils/encryption.js";
 import { generateToken, verifyToken } from "../../../utils/generateToken.js";
 import { compareHashedText, hashText } from "../../../utils/hashing.js";
+import { checkFriends } from "../../../utils/helpers/checkFriends.js";
 
 import { defaultPicture, UserModel } from "../../models/user.model.js";
 import { friendRequestState } from "./user.validation.js";
@@ -213,7 +214,7 @@ export const sendFriendRequestService = async (req, res, next) => {
   //get current user id (owner)
   const { user } = req;
   if (user.email === email)
-    return next(new Error("you cannot send friend request to your self"));
+    return next(new Error("you cannot send friend request to your self!"));
   //get the target user & add current user id to targets's friendRequest array
   const targetUser = await UserModel.findOne({ email });
   //generate token to get target user email&id to send it in the email
@@ -221,16 +222,9 @@ export const sendFriendRequestService = async (req, res, next) => {
     { id: targetUser._id, email: targetUser.email },
     "1h"
   );
-  //check if he is in target users friend already
-  if (targetUser.friend_requests.includes(user._id))
-    return next(
-      new Error(`you already sent a friend request to ${email}`, { cause: 400 })
-    );
-  //check if he is in target users friend already
-  if (targetUser.friends.includes(user._id))
-    return next(
-      new Error(`you are already a frind with ${email}`, { cause: 400 })
-    );
+
+  //check if current and traget users are already friends or sent friend requests to eachother before
+  checkFriends(targetUser, user, next);
 
   //send email to tagret user to inform him that current user sent him a friend request
   eventEmitter.emit(

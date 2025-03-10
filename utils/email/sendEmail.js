@@ -21,4 +21,5 @@ export const sendEmail = async (email, subject, html) => {
     html,
   });
 };
+
 eventEmitter.on("sendEmail", sendEmail);

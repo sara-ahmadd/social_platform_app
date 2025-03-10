@@ -26,4 +26,4 @@ const OTPSchema = new Schema(
 
 export const OTPModel = model("OTP", OTPSchema);
 
-OTPSchema.index({ createdAt: 1 }, { expireAfterSeconds: 120 });
+OTPSchema.index({ createdAt: 1 }, { expireAfterSeconds: 500 });
