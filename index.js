@@ -15,7 +15,7 @@ const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
 
 app.use(express.json());
-
+app.get("/", (req, res) => res.json({ message: "sucess!!" }));
 app.use("/uploads", express.static("uploads"));
 app.use("/assets", express.static("assets"));
 
@@ -39,3 +39,5 @@ app.use((error, req, res, next) => {
 app.listen(port, () => {
   console.log(`Server is running on port : ${port}`);
 });
+
+export default app;
