@@ -6,9 +6,6 @@ services:
       context: .
       target: dev
     container_name: "social-platform-app-dev"
-    volumes:
-      - ./src:./app/src
-      - /app/node_modules # Prevents overwriting node_modules inside the container
     ports:
       - "8000:8000"
     env_file:
@@ -18,9 +15,6 @@ services:
       context: .
       target: prod
     container_name: "social-platform-app-prod"
-    volumes:
-      - ./src:./app/src
-      - /app/node_modules # Prevents overwriting node_modules inside the container
     ports:
       - "8001:8000"
     env_file:
