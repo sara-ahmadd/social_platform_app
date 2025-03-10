@@ -113,6 +113,7 @@ router.post(
 router.get(
   "/accept_reject_request",
   validate(acceptOrRejectFriendRequestSchema),
-  asyncHandler(acceptOrRejectFriendRequestService)
+  //we will use try-catch statement directly without async handler to handle mongoose session errors
+  acceptOrRejectFriendRequestService
 );
 export default router;

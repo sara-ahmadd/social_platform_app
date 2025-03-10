@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { friendRequestTemplate } from "../../../utils/email/friendRequestEmail.js";
 import { notificationTemplate } from "../../../utils/email/notificationEmail.js";
 import { eventEmitter } from "../../../utils/email/sendEmail.js";
@@ -249,16 +250,8 @@ export const cancelFriendRequestService = async (req, res, next) => {
   const { user } = req;
   //get the target user & add current user id to targets's friendRequest array
   const targetUser = await UserModel.findOne({ email });
-  //check if he is in target users friend already
-  if (targetUser.friends.includes(user._id))
-    return next(
-      new Error(`you are already a frind with ${email}`, { cause: 400 })
-    );
-  //check if he is in target users friend requests already
-  if (!targetUser.friend_requests.includes(user._id))
-    return next(
-      new Error(`you didnot send a friend request to ${email}`, { cause: 400 })
-    );
+  //check if current and traget users are already friends or sent friend requests to eachother before
+  checkFriends(targetUser, user, next);
 
   //remove current user to friend_request array of the target user
   targetUser.friend_requests = targetUser.friend_requests.filter(
@@ -273,36 +266,49 @@ export const cancelFriendRequestService = async (req, res, next) => {
 };
 
 export const acceptOrRejectFriendRequestService = async (req, res, next) => {
-  //get sender email from query params
-  //get status (accept/reject) from query params
-  const { state, email, token } = req.query;
-  const senderUser = await UserModel.findOne({ email });
+  //use mongoose transaction
+  const session = mongoose.startSession();
+  await session.startTransaction();
+  try {
+    //get sender email from query params
+    //get status (accept/reject) from query params
+    const { state, email, token } = req.query;
+    const senderUser = await UserModel.findOne({ email });
 
-  console.log(email);
-  //get current user
-  const userData = verifyToken(token);
-  console.log(userData.email);
+    console.log(email);
+    //get current user
+    const userData = verifyToken(token);
+    console.log(userData.email);
 
-  const currentUser = await UserModel.findById(userData.id);
+    const currentUser = await UserModel.findById(userData.id);
 
-  //check if the sender is still in friend_request array
-  if (!currentUser.friend_requests.includes(senderUser._id))
-    return next(new Error("the friend request is cancelled"));
+    //check if current and sender users are already friends or sent friend requests to eachother before
+    checkFriends(currentUser, senderUser, next);
+    //if accept? add user in friends array , else? remove user from friend_request array
+    if (state === friendRequestState.accept) {
+      currentUser.friends.push(senderUser._id);
+      senderUser.friends.push(currentUser._id);
+    }
+    //in both states we remove user from friend_requests
+    currentUser.friend_requests = currentUser.friend_requests.filter(
+      (u) => u.toString() !== senderUser._id.toString()
+    );
+    await currentUser.save({ session });
+    await senderUser.save({ session });
 
-  //if accept? add user in friends array , else? remove user from friend_request array
-  if (state === friendRequestState.accept) {
-    currentUser.friends.push(senderUser._id);
+    await session.commitTransaction();
+    await session.endSession();
+
+    return res.status(200).json({
+      status: "Success",
+      message:
+        state === friendRequestState.accept
+          ? "You are now friends✔"
+          : "friend request is rejected successfully",
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    await session.endSession();
+    return next(new Error(error.message));
   }
-  //in both states we remove user from friend_requests
-  currentUser.friend_requests = currentUser.friend_requests.filter(
-    (u) => u.toString() !== senderUser._id.toString()
-  );
-  await currentUser.save();
-  return res.status(200).json({
-    status: "Success",
-    message:
-      state === friendRequestState.accept
-        ? "You are now friends✔"
-        : "friend request is rejected successfully",
-  });
 };
