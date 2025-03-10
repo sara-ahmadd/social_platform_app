@@ -1,5 +1,5 @@
 FROM node:20.13.1 as base
-WORKDIR /socila-platform-app
+WORKDIR /app
 COPY package.json .
 
 

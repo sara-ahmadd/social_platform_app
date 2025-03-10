@@ -1,21 +1,27 @@
-version: "v2.32.4"
+version: "2.32.4"
 
 services:
   social-platform-app-dev:
     build:
       context: .
       target: dev
-    container_name: social-platform-app-dev
-    volumes: -./src:./social-platform-app/src
-    ports: -'8000:8000'
+    container_name: "social-platform-app-dev"
+    volumes:
+      - ./src:./app/src
+      - /app/node_modules # Prevents overwriting node_modules inside the container
+    ports:
+      - "8000:8000"
     env_file:
       - ./.env
   social-platform-app-prod:
     build:
       context: .
       target: prod
-    container_name: social-platform-app-prod
-    volumes: -./src:./social-platform-app/src
-    ports: -'8000:8000'
+    container_name: "social-platform-app-prod"
+    volumes:
+      - ./src:./app/src
+      - /app/node_modules # Prevents overwriting node_modules inside the container
+    ports:
+      - "8001:8000"
     env_file:
       - ./.env
